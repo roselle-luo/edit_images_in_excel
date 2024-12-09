@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:excel/excel.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/services.dart';
-import '../models/image_data.dart';
-import '../utils/db_helper.dart';
+import 'package:get/get.dart';
+import 'db_helper.dart';
 
 Future<void> importExcel(File file) async {
   try {
@@ -12,9 +10,10 @@ Future<void> importExcel(File file) async {
     
     // 解码 Excel 文件
     var excel = Excel.decodeBytes(bytes);
+
     if (excel == null) return;
 
-    var images = <ImageData>[];
+    var images = <Image>[];
 
     // 遍历 Excel 表格的所有 sheet
     for (var table in excel.tables.keys) {
@@ -27,19 +26,17 @@ Future<void> importExcel(File file) async {
           
           var name = _getStringValue(row[0]?.value);
           
-          var url = _extractUrl(_getStringValue(row[1]));
-          
+          var url = _extractUrl(_getStringValue(row[1]?.value));
           // 如果提取到有效的名称和 URL，添加到图片数据列表
           if (name != null && url != null) {
-            images.add(ImageData(name: name, url: url));
+            images.add(Image(name: name, url: url, id: 0));
           }
         }
       }
     }
-
     // 将提取的图片数据存储到数据库
     for (var imageData in images) {
-      await DBHelper.insertImage(imageData);
+      await AppDatabase.get().insertImage(imageData);
     }
   } catch (e) {
     print("Error importing Excel file: $e");

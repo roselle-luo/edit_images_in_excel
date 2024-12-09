@@ -1,10 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/utils/db_helper.dart';
-import 'package:my_app/models/image_data.dart';
-import 'package:my_app/utils/excel_utils.dart';
 import 'dart:io';
 import 'package:excel/excel.dart';
+import '../utils/db_helper.dart' as im;
+import '../utils/excel_utils.dart';
 
 class ImageListPage extends StatefulWidget {
   @override
@@ -12,7 +11,7 @@ class ImageListPage extends StatefulWidget {
 }
 
 class _ImageListPageState extends State<ImageListPage> {
-  List<ImageData> images = [];
+  List<im.Image> images = [];
   int currentIndex = 0;
 
   @override
@@ -22,24 +21,25 @@ class _ImageListPageState extends State<ImageListPage> {
   }
 
   _loadImages() async {
-    List<ImageData> imageList = await DBHelper.getAllImages();
+    List<im.Image> imageList = await im.AppDatabase.get().getAllImages();
     setState(() {
       images = imageList;
     });
   }
 
   _deleteImage(int id) async {
-    await DBHelper.deleteImage(id);
+    await im.AppDatabase.get().deleteImage(id);
     _loadImages();  // Reload images after deletion
   }
 
   _importExcel() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xls', 'xlsx']);
-
     if (result != null) {
       File file = File(result.files.single.path!);
       await importExcel(file);
       _loadImages();  // Reload images after importing Excel file
+    } else {
+
     }
   }
 
@@ -90,7 +90,7 @@ _exportToExcel() async {
 }
 
   _clearDatabase() async {
-    await DBHelper.clearAllImages();
+    await im.AppDatabase.get().clearAllImages();
     _loadImages();  // Reload images after clearing the database
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('数据库已清空')));
   }

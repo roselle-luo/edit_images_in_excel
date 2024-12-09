@@ -42,8 +42,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   file_picker: ^8.1.4
   sqflite_common_ffi: ^2.3.0
+  drift: ^2.22.1
+  get: ^4.6.6
 
 dev_dependencies:
+  drift_dev: ^2.22.1
+  build_runner: ^2.3.3
   flutter_test:
     sdk: flutter
 
